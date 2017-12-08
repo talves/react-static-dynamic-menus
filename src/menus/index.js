@@ -1,13 +1,19 @@
 import React from 'react'
 import { Link, Route } from 'react-static'
 import axios from 'axios'
-import Home from '../containers/Home'
-import About from '../containers/About'
-import Blog from '../containers/Blog'
+
+import Home, { router as homeRouter } from '../containers/Home'
+import About, { router as aboutRouter } from '../containers/About'
+import Blog, { router as blogRouter } from '../containers/Blog'
 
 import config from './menu.config.json'
 
 const components = { Home, About, Blog }
+const routers = {
+  Home: { router: homeRouter },
+  About: { router: aboutRouter },
+  Blog: { router: blogRouter },
+}
 
 export default {
   components,
@@ -22,25 +28,14 @@ export default {
   )),
   routes: async () => {
     const { data: posts } = await axios.get('https://jsonplaceholder.typicode.com/posts')
-    return [
-      {
-        path: '/',
-      },
-      {
-        path: '/about',
-      },
-      {
-        path: '/blog',
-        getProps: () => ({
-          posts,
-        }),
-        children: posts.map(post => ({
-          path: `/post/${post.id}`,
-          getProps: () => ({
-            post,
-          }),
-        })),
-      },
-    ]
+    return config.menus.map(menu => {
+      let route
+      if (menu.componentName === 'Blog') {
+        route = routers[menu.componentName].router.route(menu, posts)
+      } else {
+        return routers[menu.componentName].router.route(menu)
+      }
+      return route
+    })
   },
 }

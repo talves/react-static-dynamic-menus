@@ -16,6 +16,7 @@
       "name": "Posts",
       "componentName": "Blog",
       "route": "/blog",
+      "childroute": "/post",
       "link": "/blog/"
     }
   ]
